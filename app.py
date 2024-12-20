@@ -15,7 +15,9 @@ data_exploded = data.explode('genre')
 st.title("Song Analysis Dashboard")
 
 st.subheader("Dataset preview")
-st.dataframe(data)  # Tetap gunakan data asli untuk preview
+st.dataframe(data) 
+
+st.sidebar.title("Dashboard Settings")
 
 # Menu untuk Scatter Plot
 numeric_columns = [
@@ -39,6 +41,8 @@ scatter_fig = px.scatter(
     labels={x_axis: x_axis, y_axis: y_axis}
 )
 st.plotly_chart(scatter_fig)
+
+st.sidebar.subheader("Filter Data")
 
 # Filter Genre
 filter_category = st.sidebar.selectbox("Filter by Category", category_columns)
@@ -130,3 +134,15 @@ fig = px.pie(
     title='<b>Songs Having Explicit Content (Filtered by Year)</b>'
 )
 st.plotly_chart(fig)
+
+# Line chart untuk melihat tren popularitas berdasarkan tahun
+st.subheader("Line Chart of Popularity Over the Years")
+
+line_chart = px.line(
+    filtered_data, 
+    x='year', 
+    y='popularity', 
+    title="Popularity of Songs Over the Years", 
+    labels={"year": "Year", "popularity": "Popularity"}
+)
+st.plotly_chart(line_chart)
