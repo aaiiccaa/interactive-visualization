@@ -1,8 +1,8 @@
-# Load data
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 
+# Load data
 data = pd.read_csv("songs_normalize.csv")
 
 # Pisahkan genre berdasarkan delimiters koma atau titik koma
@@ -15,9 +15,7 @@ data_exploded = data.explode('genre')
 st.title("Song Analysis Dashboard")
 
 st.subheader("Dataset preview")
-st.dataframe(data)  # Tetap gunakan data asli untuk preview\
-
-st.sidebar.title("Dashboard Setting")
+st.dataframe(data)  # Tetap gunakan data asli untuk preview
 
 # Menu untuk Scatter Plot
 numeric_columns = [
@@ -33,7 +31,7 @@ category = st.sidebar.selectbox("Category", category_columns)
 
 st.subheader("Scatter Plot")
 scatter_fig = px.scatter(
-    data,  # Gunakan data asli tanpa eksplorasi
+    data, 
     x=x_axis,
     y=y_axis,
     color=category,
@@ -42,18 +40,28 @@ scatter_fig = px.scatter(
 )
 st.plotly_chart(scatter_fig)
 
-st.sidebar.subheader("Filter Data")
-
 # Filter Genre
 filter_category = st.sidebar.selectbox("Filter by Category", category_columns)
-unique_values = data[filter_category].dropna().unique()
+
+#tipe kolom genre beda
+if filter_category == "genre":
+    unique_values = data_exploded['genre'].dropna().unique()
+else:
+    unique_values = data[filter_category].dropna().unique()
+
 selected_value = st.sidebar.selectbox(f"Select {filter_category}", options=["All"] + list(unique_values))
 
 # Tampilkan data yang difilter
-if selected_value == "All":
-    filtered_data = data
+if filter_category == "genre":
+    if selected_value == "All":
+        filtered_data = data  # Jika "All", jangan filter, gunakan data asli
+    else:
+        filtered_data = data_exploded[data_exploded['genre'] == selected_value]  # Filter berdasarkan genre
+elif selected_value == "All":
+    filtered_data = data  # Jika "All", gunakan data asli
 else:
-    filtered_data = data[data[filter_category] == selected_value]
+    filtered_data = data[data[filter_category] == selected_value]  # Filter untuk kategori lainnya
+
 
 st.subheader(f"Filtered Data (Category: {filter_category} = {selected_value})")
 st.dataframe(filtered_data)
@@ -82,9 +90,9 @@ selected_year_range = st.sidebar.slider(
 
 # Filter data berdasarkan kategori jika kategori yang dipilih adalah artis
 if filter_category == "artist" and selected_value != "All":
-    genre_filtered_data = data[data['artist'] == selected_value]
+    genre_filtered_data = data_exploded[data_exploded['artist'] == selected_value]
 else:
-    genre_filtered_data = data
+    genre_filtered_data = data_exploded
 
 # Filter data berdasarkan rentang tahun
 genre_filtered_data = genre_filtered_data[
@@ -106,7 +114,6 @@ fig = px.histogram(
 st.plotly_chart(fig)
 
 # Menghitung jumlah lagu berdasarkan nilai "explicit" dengan filter tahun
-st.subheader("Songs Having Explicit Content (Filtered by Year)")
 explicit_filtered_data = data[
     (data['year'] >= selected_year_range[0]) & (data['year'] <= selected_year_range[1])
 ]
@@ -119,6 +126,7 @@ fig = px.pie(
     labels={'song_count': 'Total Songs'},
     hole=0.6,
     color_discrete_sequence=['green', 'crimson'],
-    template='plotly_dark'
+    template='plotly_dark',
+    title='<b>Songs Having Explicit Content (Filtered by Year)</b>'
 )
 st.plotly_chart(fig)
