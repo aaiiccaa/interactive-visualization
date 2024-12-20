@@ -80,11 +80,11 @@ selected_year_range = st.sidebar.slider(
     value=(min_year, max_year)
 )
 
-# Filter data untuk histogram berdasarkan kategori dan tahun
-if selected_value == "All":
-    genre_filtered_data = data_exploded
+# Filter data berdasarkan kategori jika kategori yang dipilih adalah artis
+if filter_category == "artist" and selected_value != "All":
+    genre_filtered_data = data[data['artist'] == selected_value]
 else:
-    genre_filtered_data = data_exploded[data_exploded[filter_category] == selected_value]
+    genre_filtered_data = data
 
 # Filter data berdasarkan rentang tahun
 genre_filtered_data = genre_filtered_data[
@@ -101,7 +101,7 @@ fig = px.histogram(
     y='song_count',
     color_discrete_sequence=['green'],
     template='plotly_dark',
-    title=f"Total Songs Based on Genres ({filter_category}: {selected_value})"
+    title=f"Total Songs Based on Genres"
 )
 st.plotly_chart(fig)
 
