@@ -117,6 +117,22 @@ fig = px.histogram(
 )
 st.plotly_chart(fig)
 
+# Hitung rata-rata popularitas berdasarkan genre dan tahun
+genre_year_popularity = genre_filtered_data.groupby(['year', 'genre'], as_index=False)['popularity'].mean()
+
+# Line chart untuk melihat tren popularitas genre berdasarkan tahun
+st.subheader("Genre Popularity Over the Years")
+
+line_chart = px.line(
+    genre_year_popularity, 
+    x='year', 
+    y='popularity', 
+    color='genre',  # Membuat setiap genre memiliki warna sendiri
+    title="Popularity of Songs by Genre Over the Years", 
+    labels={"year": "Year", "popularity": "Average Popularity"}
+)
+st.plotly_chart(line_chart)
+
 # Menghitung jumlah lagu berdasarkan nilai "explicit" dengan filter tahun
 explicit_filtered_data = data[
     (data['year'] >= selected_year_range[0]) & (data['year'] <= selected_year_range[1])
